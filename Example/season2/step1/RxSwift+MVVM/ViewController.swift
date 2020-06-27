@@ -77,6 +77,19 @@ class ViewController: UIViewController {
         }
     }
 
+    // - Observable의 사용 예시)
+    // 위의 getJson2 메서드와 형태가 유사하다.
+    func getJson3() -> Observable<String> {
+        return Observable.create { f in
+            guard let url = URL(string: MEMBER_LIST_URL),
+                let data = try? Data(contentsOf: url),
+                let json = String(data: data, encoding: .utf8) else { return Disposables.create() }
+
+            f.onNext(json)
+            return Disposables.create()
+        }
+    }
+
     // MARK: SYNC
 
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
@@ -93,15 +106,26 @@ class ViewController: UIViewController {
          }
          */
 
+        // - Observable의 의미 : "나중에 데이터 줄게!"
+        getJson3()
+            .subscribe(onNext: { json in
+                DispatchQueue.main.async {
+                    self.editView.text = json
+                    self.setVisibleWithAnimation(self.activityIndicator, false)
+                }
+            })
+
         // MARK: - Observable과 비슷한 원리의 Async 동작 예시)
 
-        getJson2()
-            .오겠지 { [weak self] json in
-                DispatchQueue.main.async {
-                    self?.editView.text = json
-                    self?.setVisibleWithAnimation(self?.activityIndicator, false)
-                }
-            }
+        /*
+         getJson2()
+             .오겠지 { [weak self] json in
+                 DispatchQueue.main.async {
+                     self?.editView.text = json
+                     self?.setVisibleWithAnimation(self?.activityIndicator, false)
+                 }
+             }
+         */
 
         // MARK: Sync Operation
 
