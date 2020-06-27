@@ -92,6 +92,8 @@ class ViewController: UIViewController {
 
     // MARK: SYNC
 
+    var disposable: Disposable?
+
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
 
     @IBAction func onLoad() {
@@ -107,12 +109,15 @@ class ViewController: UIViewController {
          */
 
         // - Observable의 의미 : "나중에 데이터 줄게!"
-        getJson3()
+        //   - ConcurrentDispatchQueueScheduler Operator를 사용하면 아래의 첫 작업 부터 DispatchQueue와 같은 효과를 얻는다.
+        //   - observeOn(MainScheduler.instance 를 사용하면 메인스레드에서 동작하도록 할 수 있다.
+        // .  - subscribeOn : 동작 간 특정 스레드를 지정해서 동작한다.
+        disposable = getJson3()
+            .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .default))
+            .observeOn(MainScheduler.instance) // 메인스레드(MainScheduler.instance)에서 동작하도록 한다.
             .subscribe(onNext: { json in
-                DispatchQueue.main.async {
-                    self.editView.text = json
-                    self.setVisibleWithAnimation(self.activityIndicator, false)
-                }
+                self.editView.text = json
+                self.setVisibleWithAnimation(self.activityIndicator, false)
             })
 
         // MARK: - Observable과 비슷한 원리의 Async 동작 예시)
