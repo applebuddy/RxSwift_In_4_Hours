@@ -6,6 +6,10 @@
 //  Copyright © 2019 iamchiwon. All rights reserved.
 //
 
+// MARK: - APIService
+
+// - menu를 가져오는 로직이 구현되어 있다.
+
 import Foundation
 
 let MenuUrl = "https://firebasestorage.googleapis.com/v0/b/rxswiftin4hours.appspot.com/o/fried_menus.json?alt=media&token=42d5cb7e-8ec4-48f9-bf39-3049e796c936"

@@ -6,6 +6,8 @@
 //  Copyright © 2019 iamchiwon. All rights reserved.
 //
 
+// MARK: - MenuItemTableViewCell
+
 import UIKit
 
 class MenuItemTableViewCell: UITableViewCell {

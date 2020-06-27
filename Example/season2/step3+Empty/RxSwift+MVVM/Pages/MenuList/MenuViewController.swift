@@ -6,9 +6,19 @@
 //  Copyright © 2019 iamchiwon. All rights reserved.
 //
 
+// MARK: - RxMVVM Study
+
+// - 1:15:00 부터 해당 강의 시작 [강의 링크](https://www.youtube.com/watch?v=iHKBNYMWd5I&list=PL03rJBlpwTaBrhux_C8RmtWDI_kZSLvdQ&index=1)
+
+// MARK: - MenuViewController
+
 import UIKit
 
 class MenuViewController: UIViewController {
+    // MARK: - Property
+
+    let viewModel = MenuListViewModel()
+
     // MARK: - Life Cycle
 
     override func viewDidLoad() {
@@ -47,15 +57,16 @@ class MenuViewController: UIViewController {
 
 extension MenuViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        return 20
+        return viewModel.menuList.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MenuItemTableViewCell") as! MenuItemTableViewCell
 
-        cell.title.text = "MENU \(indexPath.row)"
-        cell.price.text = "\(indexPath.row * 100)"
-        cell.count.text = "0"
+        let menu = viewModel.menuList[indexPath.row]
+        cell.title.text = menu.name
+        cell.price.text = "\(menu.price)"
+        cell.count.text = "\(menu.count)"
 
         return cell
     }
