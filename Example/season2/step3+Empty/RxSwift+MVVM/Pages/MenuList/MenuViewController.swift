@@ -15,7 +15,7 @@ class MenuViewController: UIViewController {
         super.viewDidLoad()
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func prepare(for segue: UIStoryboardSegue, sender _: Any?) {
         let identifier = segue.identifier ?? ""
         if identifier == "OrderViewController",
             let orderVC = segue.destination as? OrderViewController {
@@ -36,10 +36,9 @@ class MenuViewController: UIViewController {
     @IBOutlet var itemCountLabel: UILabel!
     @IBOutlet var totalPrice: UILabel!
 
-    @IBAction func onClear() {
-    }
+    @IBAction func onClear() {}
 
-    @IBAction func onOrder(_ sender: UIButton) {
+    @IBAction func onOrder(_: UIButton) {
         // TODO: no selection
         // showAlert("Order Fail", "No Orders")
         performSegue(withIdentifier: "OrderViewController", sender: nil)
@@ -47,7 +46,7 @@ class MenuViewController: UIViewController {
 }
 
 extension MenuViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         return 20
     }
 

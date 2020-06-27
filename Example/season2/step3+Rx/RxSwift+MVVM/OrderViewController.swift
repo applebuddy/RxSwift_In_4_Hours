@@ -75,7 +75,7 @@ class OrderViewController: UIViewController {
             .map { $0.currencyKR() }
             .bind(to: totalPrice.rx.text)
             .disposed(by: disposeBag)
-        
+
         orderedMenuItems.accept(orderedMenuItems.value)
     }
 

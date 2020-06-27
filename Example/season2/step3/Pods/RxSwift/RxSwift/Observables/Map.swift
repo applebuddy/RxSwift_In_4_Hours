@@ -7,7 +7,6 @@
 //
 
 extension ObservableType {
-
     /**
      Projects each element of an observable sequence into a new form.
 
@@ -19,40 +18,39 @@ extension ObservableType {
      */
     public func map<Result>(_ transform: @escaping (Element) throws -> Result)
         -> Observable<Result> {
-        return self.asObservable().composeMap(transform)
+        return asObservable().composeMap(transform)
     }
 }
 
-final private class MapSink<SourceType, Observer: ObserverType>: Sink<Observer>, ObserverType {
+private final class MapSink<SourceType, Observer: ObserverType>: Sink<Observer>, ObserverType {
     typealias Transform = (SourceType) throws -> ResultType
 
-    typealias ResultType = Observer.Element 
+    typealias ResultType = Observer.Element
     typealias Element = SourceType
 
     private let _transform: Transform
 
     init(transform: @escaping Transform, observer: Observer, cancel: Cancelable) {
-        self._transform = transform
+        _transform = transform
         super.init(observer: observer, cancel: cancel)
     }
 
     func on(_ event: Event<SourceType>) {
         switch event {
-        case .next(let element):
+        case let .next(element):
             do {
-                let mappedElement = try self._transform(element)
-                self.forwardOn(.next(mappedElement))
-            }
-            catch let e {
+                let mappedElement = try _transform(element)
+                forwardOn(.next(mappedElement))
+            } catch let e {
                 self.forwardOn(.error(e))
                 self.dispose()
             }
-        case .error(let error):
-            self.forwardOn(.error(error))
-            self.dispose()
+        case let .error(error):
+            forwardOn(.error(error))
+            dispose()
         case .completed:
-            self.forwardOn(.completed)
-            self.dispose()
+            forwardOn(.completed)
+            dispose()
         }
     }
 }
@@ -70,7 +68,7 @@ internal func _map<Element, Result>(source: Observable<Element>, transform: @esc
     return Map(source: source, transform: transform)
 }
 
-final private class Map<SourceType, ResultType>: Producer<ResultType> {
+private final class Map<SourceType, ResultType>: Producer<ResultType> {
     typealias Transform = (SourceType) throws -> ResultType
 
     private let _source: Observable<SourceType>
@@ -78,31 +76,31 @@ final private class Map<SourceType, ResultType>: Producer<ResultType> {
     private let _transform: Transform
 
     init(source: Observable<SourceType>, transform: @escaping Transform) {
-        self._source = source
-        self._transform = transform
+        _source = source
+        _transform = transform
 
-#if TRACE_RESOURCES
-        _ = increment(_numberOfMapOperators)
-#endif
+        #if TRACE_RESOURCES
+            _ = increment(_numberOfMapOperators)
+        #endif
     }
 
     override func composeMap<Result>(_ selector: @escaping (ResultType) throws -> Result) -> Observable<Result> {
-        let originalSelector = self._transform
-        return Map<SourceType, Result>(source: self._source, transform: { (s: SourceType) throws -> Result in
+        let originalSelector = _transform
+        return Map<SourceType, Result>(source: _source, transform: { (s: SourceType) throws -> Result in
             let r: ResultType = try originalSelector(s)
             return try selector(r)
         })
     }
 
     override func run<Observer: ObserverType>(_ observer: Observer, cancel: Cancelable) -> (sink: Disposable, subscription: Disposable) where Observer.Element == ResultType {
-        let sink = MapSink(transform: self._transform, observer: observer, cancel: cancel)
-        let subscription = self._source.subscribe(sink)
+        let sink = MapSink(transform: _transform, observer: observer, cancel: cancel)
+        let subscription = _source.subscribe(sink)
         return (sink: sink, subscription: subscription)
     }
 
     #if TRACE_RESOURCES
-    deinit {
-        _ = decrement(_numberOfMapOperators)
-    }
+        deinit {
+            _ = decrement(_numberOfMapOperators)
+        }
     #endif
 }

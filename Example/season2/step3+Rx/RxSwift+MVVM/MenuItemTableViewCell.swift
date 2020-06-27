@@ -10,7 +10,7 @@ import UIKit
 
 class MenuItemTableViewCell: UITableViewCell {
     static let identifier = "MenuItemTableViewCell"
-    
+
     var onCountChanged: (Int) -> Void = { _ in }
 
     @IBOutlet var title: UILabel!

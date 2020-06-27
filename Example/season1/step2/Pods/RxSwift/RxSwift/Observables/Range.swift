@@ -6,7 +6,7 @@
 //  Copyright © 2015 Krunoslav Zaher. All rights reserved.
 //
 
-extension ObservableType where Element : RxAbstractInteger {
+extension ObservableType where Element: RxAbstractInteger {
     /**
      Generates an observable sequence of integral numbers within a specified range, using the specified scheduler to generate and send out observer messages.
 
@@ -22,7 +22,7 @@ extension ObservableType where Element : RxAbstractInteger {
     }
 }
 
-final private class RangeProducer<Element: RxAbstractInteger>: Producer<Element> {
+private final class RangeProducer<Element: RxAbstractInteger>: Producer<Element> {
     fileprivate let _start: Element
     fileprivate let _count: Element
     fileprivate let _scheduler: ImmediateSchedulerType
@@ -36,11 +36,11 @@ final private class RangeProducer<Element: RxAbstractInteger>: Producer<Element>
             rxFatalError("overflow of count")
         }
 
-        self._start = start
-        self._count = count
-        self._scheduler = scheduler
+        _start = start
+        _count = count
+        _scheduler = scheduler
     }
-    
+
     override func run<Observer: ObserverType>(_ observer: Observer, cancel: Cancelable) -> (sink: Disposable, subscription: Disposable) where Observer.Element == Element {
         let sink = RangeSink(parent: self, observer: observer, cancel: cancel)
         let subscription = sink.run()
@@ -48,23 +48,22 @@ final private class RangeProducer<Element: RxAbstractInteger>: Producer<Element>
     }
 }
 
-final private class RangeSink<Observer: ObserverType>: Sink<Observer> where Observer.Element: RxAbstractInteger {
+private final class RangeSink<Observer: ObserverType>: Sink<Observer> where Observer.Element: RxAbstractInteger {
     typealias Parent = RangeProducer<Observer.Element>
-    
+
     private let _parent: Parent
-    
+
     init(parent: Parent, observer: Observer, cancel: Cancelable) {
-        self._parent = parent
+        _parent = parent
         super.init(observer: observer, cancel: cancel)
     }
-    
+
     func run() -> Disposable {
-        return self._parent._scheduler.scheduleRecursive(0 as Observer.Element) { i, recurse in
+        return _parent._scheduler.scheduleRecursive(0 as Observer.Element) { i, recurse in
             if i < self._parent._count {
                 self.forwardOn(.next(self._parent._start + i))
                 recurse(i + 1)
-            }
-            else {
+            } else {
                 self.forwardOn(.completed)
                 self.dispose()
             }

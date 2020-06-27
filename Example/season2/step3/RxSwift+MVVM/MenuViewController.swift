@@ -18,13 +18,13 @@ class MenuViewController: UIViewController {
         fetchMenuItems()
         updateTotalInfo()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         onClear()
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func prepare(for segue: UIStoryboardSegue, sender _: Any?) {
         let identifier = segue.identifier ?? ""
         if identifier == "OrderViewController",
             let orderVC = segue.destination as? OrderViewController {
@@ -109,7 +109,7 @@ class MenuViewController: UIViewController {
         updateTotalInfo()
     }
 
-    @IBAction func onOrder(_ sender: UIButton) {
+    @IBAction func onOrder(_: UIButton) {
         let allCount = menuItems.map { $0.count }.reduce(0, +)
         guard allCount > 0 else {
             showAlert("Order Fail", "No Orders")
@@ -120,7 +120,7 @@ class MenuViewController: UIViewController {
 }
 
 extension MenuViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         return menuItems.count
     }
 

@@ -7,7 +7,6 @@
 //
 
 extension ObservableType {
-
     /**
      Prepends a sequence of values to an observable sequence.
 
@@ -18,11 +17,11 @@ extension ObservableType {
      */
     public func startWith(_ elements: Element ...)
         -> Observable<Element> {
-            return StartWith(source: self.asObservable(), elements: elements)
+        return StartWith(source: asObservable(), elements: elements)
     }
 }
 
-final private class StartWith<Element>: Producer<Element> {
+private final class StartWith<Element>: Producer<Element> {
     let elements: [Element]
     let source: Observable<Element>
 
@@ -32,11 +31,11 @@ final private class StartWith<Element>: Producer<Element> {
         super.init()
     }
 
-    override func run<Observer: ObserverType>(_ observer: Observer, cancel: Cancelable) -> (sink: Disposable, subscription: Disposable) where Observer.Element == Element {
-        for e in self.elements {
+    override func run<Observer: ObserverType>(_ observer: Observer, cancel _: Cancelable) -> (sink: Disposable, subscription: Disposable) where Observer.Element == Element {
+        for e in elements {
             observer.on(.next(e))
         }
 
-        return (sink: Disposables.create(), subscription: self.source.subscribe(observer))
+        return (sink: Disposables.create(), subscription: source.subscribe(observer))
     }
 }

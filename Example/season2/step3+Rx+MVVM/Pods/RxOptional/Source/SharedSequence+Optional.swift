@@ -6,7 +6,7 @@ public extension SharedSequenceConvertibleType where Element: OptionalType {
 
      - returns: `Driver` of source `Driver`'s elements, with `nil` elements filtered out.
      */
-    
+
     func filterNil() -> SharedSequence<SharingStrategy, Element.Wrapped> {
         return flatMap { element -> SharedSequence<SharingStrategy, Element.Wrapped> in
             guard let value = element.value else {
@@ -23,7 +23,7 @@ public extension SharedSequenceConvertibleType where Element: OptionalType {
 
      - returns: `Driver` of the source `Driver`'s unwrapped elements, with `nil` elements replaced by `valueOnNil`.
      */
-    
+
     func replaceNilWith(_ valueOnNil: Element.Wrapped) -> SharedSequence<SharingStrategy, Element.Wrapped> {
         return map { element -> Element.Wrapped in
             guard let value = element.value else {
@@ -40,7 +40,7 @@ public extension SharedSequenceConvertibleType where Element: OptionalType {
 
      - returns: `Driver` of the source `Driver`'s unwrapped elements, with `nil` elements replaced by the handler's returned non-`nil` elements.
      */
-    
+
     func catchOnNil(_ handler: @escaping () -> SharedSequence<SharingStrategy, Element.Wrapped>) -> SharedSequence<SharingStrategy, Element.Wrapped> {
         return flatMap { element -> SharedSequence<SharingStrategy, Element.Wrapped> in
             guard let value = element.value else {
@@ -52,19 +52,19 @@ public extension SharedSequenceConvertibleType where Element: OptionalType {
 }
 
 #if !swift(>=3.3) || (swift(>=4.0) && !swift(>=4.1))
-public extension SharedSequenceConvertibleType where Element: OptionalType, Element.Wrapped: Equatable {
-    /**
-     Returns an observable sequence that contains only distinct contiguous elements according to equality operator.
-     
-     - seealso: [distinct operator on reactivex.io](http://reactivex.io/documentation/operators/distinct.html)
-     
-     - returns: An observable sequence only containing the distinct contiguous elements, based on equality operator, from the source sequence.
-     */
-    
-    func distinctUntilChanged() -> SharedSequence<SharingStrategy, Element> {
-        return self.distinctUntilChanged { (lhs, rhs) -> Bool in
-            return lhs.value == rhs.value
+    public extension SharedSequenceConvertibleType where Element: OptionalType, Element.Wrapped: Equatable {
+        /**
+         Returns an observable sequence that contains only distinct contiguous elements according to equality operator.
+
+         - seealso: [distinct operator on reactivex.io](http://reactivex.io/documentation/operators/distinct.html)
+
+         - returns: An observable sequence only containing the distinct contiguous elements, based on equality operator, from the source sequence.
+         */
+
+        func distinctUntilChanged() -> SharedSequence<SharingStrategy, Element> {
+            return distinctUntilChanged { (lhs, rhs) -> Bool in
+                lhs.value == rhs.value
+            }
         }
     }
-}
 #endif

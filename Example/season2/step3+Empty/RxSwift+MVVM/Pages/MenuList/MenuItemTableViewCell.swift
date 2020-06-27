@@ -13,9 +13,7 @@ class MenuItemTableViewCell: UITableViewCell {
     @IBOutlet var count: UILabel!
     @IBOutlet var price: UILabel!
 
-    @IBAction func onIncreaseCount() {
-    }
+    @IBAction func onIncreaseCount() {}
 
-    @IBAction func onDecreaseCount() {
-    }
+    @IBAction func onDecreaseCount() {}
 }

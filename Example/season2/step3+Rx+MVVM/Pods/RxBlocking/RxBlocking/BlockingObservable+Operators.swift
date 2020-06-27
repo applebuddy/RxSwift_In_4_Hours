@@ -28,8 +28,8 @@ extension BlockingObservable {
     ///
     /// - returns: All elements of sequence.
     public func toArray() throws -> [Element] {
-        let results = self.materializeResult()
-        return try self.elementsOrThrow(results)
+        let results = materializeResult()
+        return try elementsOrThrow(results)
     }
 }
 
@@ -40,8 +40,8 @@ extension BlockingObservable {
     ///
     /// - returns: First element of sequence. If sequence is empty `nil` is returned.
     public func first() throws -> Element? {
-        let results = self.materializeResult(max: 1)
-        return try self.elementsOrThrow(results).first
+        let results = materializeResult(max: 1)
+        return try elementsOrThrow(results).first
     }
 }
 
@@ -52,8 +52,8 @@ extension BlockingObservable {
     ///
     /// - returns: Last element in the sequence. If sequence is empty `nil` is returned.
     public func last() throws -> Element? {
-        let results = self.materializeResult()
-        return try self.elementsOrThrow(results).last
+        let results = materializeResult()
+        return try elementsOrThrow(results).last
     }
 }
 
@@ -64,7 +64,7 @@ extension BlockingObservable {
     ///
     /// - returns: Returns the only element of an sequence, and reports an error if there is not exactly one element in the observable sequence.
     public func single() throws -> Element {
-        return try self.single { _ in true }
+        return try single { _ in true }
     }
 
     /// Blocks current thread until sequence terminates.
@@ -74,8 +74,8 @@ extension BlockingObservable {
     /// - parameter predicate: A function to test each source element for a condition.
     /// - returns: Returns the only element of an sequence that satisfies the condition in the predicate, and reports an error if there is not exactly one element in the sequence.
     public func single(_ predicate: @escaping (Element) throws -> Bool) throws -> Element {
-        let results = self.materializeResult(max: 2, predicate: predicate)
-        let elements = try self.elementsOrThrow(results)
+        let results = materializeResult(max: 2, predicate: predicate)
+        let elements = try elementsOrThrow(results)
 
         if elements.count > 1 {
             throw RxError.moreThanOneElement
@@ -96,7 +96,7 @@ extension BlockingObservable {
     ///
     /// - returns: On completion, returns the list of elements in the sequence. On error, returns the list of elements up to that point, along with the error itself.
     public func materialize() -> MaterializedSequenceResult<Element> {
-        return self.materializeResult()
+        return materializeResult()
     }
 }
 
@@ -104,22 +104,22 @@ extension BlockingObservable {
     fileprivate func materializeResult(max: Int? = nil, predicate: @escaping (Element) throws -> Bool = { _ in true }) -> MaterializedSequenceResult<Element> {
         var elements = [Element]()
         var error: Swift.Error?
-        
-        let lock = RunLoopLock(timeout: self.timeout)
-        
+
+        let lock = RunLoopLock(timeout: timeout)
+
         let d = SingleAssignmentDisposable()
-        
+
         defer {
             d.dispose()
         }
-        
+
         lock.dispatch {
             let subscription = self.source.subscribe { event in
                 if d.isDisposed {
                     return
                 }
                 switch event {
-                case .next(let element):
+                case let .next(element):
                     do {
                         if try predicate(element) {
                             elements.append(element)
@@ -133,7 +133,7 @@ extension BlockingObservable {
                         d.dispose()
                         lock.stop()
                     }
-                case .error(let err):
+                case let .error(err):
                     error = err
                     d.dispose()
                     lock.stop()
@@ -142,28 +142,28 @@ extension BlockingObservable {
                     lock.stop()
                 }
             }
-            
+
             d.setDisposable(subscription)
         }
-        
+
         do {
             try lock.run()
         } catch let err {
             error = err
         }
-        
+
         if let error = error {
             return MaterializedSequenceResult.failed(elements: elements, error: error)
         }
-        
+
         return MaterializedSequenceResult.completed(elements: elements)
     }
-    
+
     fileprivate func elementsOrThrow(_ results: MaterializedSequenceResult<Element>) throws -> [Element] {
         switch results {
-        case .failed(_, let error):
+        case let .failed(_, error):
             throw error
-        case .completed(let elements):
+        case let .completed(elements):
             return elements
         }
     }

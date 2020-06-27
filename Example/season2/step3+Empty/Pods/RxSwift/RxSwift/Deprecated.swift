@@ -11,9 +11,9 @@ import Foundation
 extension Observable {
     /**
      Converts a optional to an observable sequence.
-     
+
      - seealso: [from operator on reactivex.io](http://reactivex.io/documentation/operators/from.html)
-     
+
      - parameter optional: Optional element in the resulting observable sequence.
      - returns: An observable sequence containing the wrapped value or not from given optional.
      */
@@ -40,19 +40,18 @@ extension Observable {
 extension ObservableType {
     /**
 
-    Projects each element of an observable sequence into a new form by incorporating the element's index.
+     Projects each element of an observable sequence into a new form by incorporating the element's index.
 
-     - seealso: [map operator on reactivex.io](http://reactivex.io/documentation/operators/map.html)
+      - seealso: [map operator on reactivex.io](http://reactivex.io/documentation/operators/map.html)
 
-     - parameter selector: A transform function to apply to each source element; the second parameter of the function represents the index of the source element.
-     - returns: An observable sequence whose elements are the result of invoking the transform function on each element of source.
+      - parameter selector: A transform function to apply to each source element; the second parameter of the function represents the index of the source element.
+      - returns: An observable sequence whose elements are the result of invoking the transform function on each element of source.
      */
     @available(*, deprecated, message: "Please use enumerated().map()")
     public func mapWithIndex<Result>(_ selector: @escaping (Element, Int) throws -> Result)
         -> Observable<Result> {
-        return self.enumerated().map { try selector($0.element, $0.index) }
+        return enumerated().map { try selector($0.element, $0.index) }
     }
-
 
     /**
 
@@ -66,7 +65,7 @@ extension ObservableType {
     @available(*, deprecated, message: "Please use enumerated().flatMap()")
     public func flatMapWithIndex<Source: ObservableConvertibleType>(_ selector: @escaping (Element, Int) throws -> Source)
         -> Observable<Source.Element> {
-        return self.enumerated().flatMap { try selector($0.element, $0.index) }
+        return enumerated().flatMap { try selector($0.element, $0.index) }
     }
 
     /**
@@ -81,9 +80,8 @@ extension ObservableType {
      */
     @available(*, deprecated, message: "Please use enumerated().skipWhile().map()")
     public func skipWhileWithIndex(_ predicate: @escaping (Element, Int) throws -> Bool) -> Observable<Element> {
-        return self.enumerated().skipWhile { try predicate($0.element, $0.index) }.map { $0.element }
+        return enumerated().skipWhile { try predicate($0.element, $0.index) }.map { $0.element }
     }
-
 
     /**
 
@@ -98,7 +96,7 @@ extension ObservableType {
      */
     @available(*, deprecated, message: "Please use enumerated().takeWhile().map()")
     public func takeWhileWithIndex(_ predicate: @escaping (Element, Int) throws -> Bool) -> Observable<Element> {
-        return self.enumerated().takeWhile { try predicate($0.element, $0.index) }.map { $0.element }
+        return enumerated().takeWhile { try predicate($0.element, $0.index) }.map { $0.element }
     }
 }
 
@@ -111,13 +109,11 @@ extension Disposable {
     /// - parameter bag: `DisposeBag` to add `self` to.
     @available(*, deprecated, message: "use disposed(by:) instead", renamed: "disposed(by:)")
     public func addDisposableTo(_ bag: DisposeBag) {
-        self.disposed(by: bag)
+        disposed(by: bag)
     }
 }
 
-
 extension ObservableType {
-
     /**
      Returns an observable sequence that shares a single subscription to the underlying sequence, and immediately upon subscription replays latest element in buffer.
 
@@ -130,13 +126,11 @@ extension ObservableType {
     @available(*, deprecated, message: "use share(replay: 1) instead", renamed: "share(replay:)")
     public func shareReplayLatestWhileConnected()
         -> Observable<Element> {
-        return self.share(replay: 1, scope: .whileConnected)
+        return share(replay: 1, scope: .whileConnected)
     }
 }
 
-
 extension ObservableType {
-
     /**
      Returns an observable sequence that shares a single subscription to the underlying sequence, and immediately upon subscription replays maximum number of elements in buffer.
 
@@ -150,7 +144,7 @@ extension ObservableType {
     @available(*, deprecated, message: "Suggested replacement is `share(replay: 1)`. In case old 3.x behavior of `shareReplay` is required please use `share(replay: 1, scope: .forever)` instead.", renamed: "share(replay:)")
     public func shareReplay(_ bufferSize: Int)
         -> Observable<Element> {
-        return self.share(replay: bufferSize, scope: .forever)
+        return share(replay: bufferSize, scope: .forever)
     }
 }
 
@@ -179,7 +173,7 @@ public final class Variable<Element> {
     private var _value: Element
 
     #if DEBUG
-    fileprivate let _synchronizationTracker = SynchronizationTracker()
+        fileprivate let _synchronizationTracker = SynchronizationTracker()
     #endif
 
     /// Gets or sets current value of variable.
@@ -189,19 +183,19 @@ public final class Variable<Element> {
     /// Even if the newly set value is same as the old value, observers are still notified for change.
     public var value: Element {
         get {
-            self._lock.lock(); defer { self._lock.unlock() }
-            return self._value
+            _lock.lock(); defer { self._lock.unlock() }
+            return _value
         }
         set(newValue) {
             #if DEBUG
-                self._synchronizationTracker.register(synchronizationErrorMessage: .variable)
+                _synchronizationTracker.register(synchronizationErrorMessage: .variable)
                 defer { self._synchronizationTracker.unregister() }
             #endif
-            self._lock.lock()
-            self._value = newValue
-            self._lock.unlock()
+            _lock.lock()
+            _value = newValue
+            _lock.unlock()
 
-            self._subject.on(.next(newValue))
+            _subject.on(.next(newValue))
         }
     }
 
@@ -209,13 +203,13 @@ public final class Variable<Element> {
     ///
     /// - parameter value: Initial variable value.
     public init(_ value: Element) {
-        self._value = value
-        self._subject = BehaviorSubject(value: value)
+        _value = value
+        _subject = BehaviorSubject(value: value)
     }
 
     /// - returns: Canonical interface for push style sequence
     public func asObservable() -> Observable<Element> {
-        return self._subject
+        return _subject
     }
 
     deinit {
@@ -226,9 +220,9 @@ public final class Variable<Element> {
 extension ObservableType {
     /**
      Returns an observable sequence by the source observable sequence shifted forward in time by a specified delay. Error events from the source observable sequence are not delayed.
-    
+
      - seealso: [delay operator on reactivex.io](http://reactivex.io/documentation/operators/delay.html)
-    
+
      - parameter dueTime: Relative time shift of the source by.
      - parameter scheduler: Scheduler to run the subscription delay timer on.
      - returns: the source Observable shifted in time by the specified delay.
@@ -236,17 +230,16 @@ extension ObservableType {
     @available(*, deprecated, message: "Use DispatchTimeInterval overload instead.", renamed: "delay(_:scheduler:)")
     public func delay(_ dueTime: Foundation.TimeInterval, scheduler: SchedulerType)
         -> Observable<Element> {
-        return self.delay(.milliseconds(Int(dueTime * 1000.0)), scheduler: scheduler)
+        return delay(.milliseconds(Int(dueTime * 1000.0)), scheduler: scheduler)
     }
 }
 
 extension ObservableType {
-    
     /**
      Applies a timeout policy for each element in the observable sequence. If the next element isn't received within the specified timeout duration starting from its predecessor, a TimeoutError is propagated to the observer.
-     
+
      - seealso: [timeout operator on reactivex.io](http://reactivex.io/documentation/operators/timeout.html)
-     
+
      - parameter dueTime: Maximum duration between values before a timeout occurs.
      - parameter scheduler: Scheduler to run the timeout timer on.
      - returns: An observable sequence with a `RxError.timeout` in case of a timeout.
@@ -256,12 +249,12 @@ extension ObservableType {
         -> Observable<Element> {
         return timeout(.milliseconds(Int(dueTime * 1000.0)), scheduler: scheduler)
     }
-    
+
     /**
      Applies a timeout policy for each element in the observable sequence, using the specified scheduler to run timeout timers. If the next element isn't received within the specified timeout duration starting from its predecessor, the other observable sequence is used to produce future messages from that point on.
-     
+
      - seealso: [timeout operator on reactivex.io](http://reactivex.io/documentation/operators/timeout.html)
-     
+
      - parameter dueTime: Maximum duration between values before a timeout occurs.
      - parameter other: Sequence to return in case of a timeout.
      - parameter scheduler: Scheduler to run the timeout timer on.
@@ -275,12 +268,11 @@ extension ObservableType {
 }
 
 extension ObservableType {
-    
     /**
      Skips elements for the specified duration from the start of the observable source sequence, using the specified scheduler to run timers.
-     
+
      - seealso: [skip operator on reactivex.io](http://reactivex.io/documentation/operators/skip.html)
-     
+
      - parameter duration: Duration for skipping elements from the start of the sequence.
      - parameter scheduler: Scheduler to run the timer on.
      - returns: An observable sequence with the elements skipped during the specified duration from the start of the source sequence.
@@ -292,12 +284,12 @@ extension ObservableType {
     }
 }
 
-extension ObservableType where Element : RxAbstractInteger {
+extension ObservableType where Element: RxAbstractInteger {
     /**
      Returns an observable sequence that produces a value after each period, using the specified scheduler to run timers and to send out observer messages.
-     
+
      - seealso: [interval operator on reactivex.io](http://reactivex.io/documentation/operators/interval.html)
-     
+
      - parameter period: Period for producing the values in the resulting sequence.
      - parameter scheduler: Scheduler to run the timer on.
      - returns: An observable sequence that produces a value after each period.
@@ -312,9 +304,9 @@ extension ObservableType where Element : RxAbstractInteger {
 extension ObservableType where Element: RxAbstractInteger {
     /**
      Returns an observable sequence that periodically produces a value after the specified initial relative due time has elapsed, using the specified scheduler to run timers.
-     
+
      - seealso: [timer operator on reactivex.io](http://reactivex.io/documentation/operators/timer.html)
-     
+
      - parameter dueTime: Relative time at which to produce the first value.
      - parameter period: Period to produce subsequent values.
      - parameter scheduler: Scheduler to run timers on.
@@ -328,14 +320,13 @@ extension ObservableType where Element: RxAbstractInteger {
 }
 
 extension ObservableType {
-    
     /**
      Returns an Observable that emits the first and the latest item emitted by the source Observable during sequential time windows of a specified duration.
-     
+
      This operator makes sure that no two elements are emitted in less then dueTime.
-     
+
      - seealso: [debounce operator on reactivex.io](http://reactivex.io/documentation/operators/debounce.html)
-     
+
      - parameter dueTime: Throttling duration for each element.
      - parameter latest: Should latest element received in a dueTime wide time window since last element emission be emitted.
      - parameter scheduler: Scheduler to run the throttle timers on.
@@ -349,12 +340,11 @@ extension ObservableType {
 }
 
 extension ObservableType {
-    
     /**
      Takes elements for the specified duration from the start of the observable source sequence, using the specified scheduler to run timers.
-     
+
      - seealso: [take operator on reactivex.io](http://reactivex.io/documentation/operators/take.html)
-     
+
      - parameter duration: Duration for taking elements from the start of the sequence.
      - parameter scheduler: Scheduler to run the timer on.
      - returns: An observable sequence with the elements taken during the specified duration from the start of the source sequence.
@@ -366,14 +356,12 @@ extension ObservableType {
     }
 }
 
-
 extension ObservableType {
-    
     /**
      Time shifts the observable sequence by delaying the subscription with the specified relative time duration, using the specified scheduler to run timers.
-     
+
      - seealso: [delay operator on reactivex.io](http://reactivex.io/documentation/operators/delay.html)
-     
+
      - parameter dueTime: Relative time shift of the subscription.
      - parameter scheduler: Scheduler to run the subscription delay timer on.
      - returns: Time-shifted sequence.
@@ -386,12 +374,11 @@ extension ObservableType {
 }
 
 extension ObservableType {
-    
     /**
      Projects each element of an observable sequence into a window that is completed when either it’s full or a given amount of time has elapsed.
-     
+
      - seealso: [window operator on reactivex.io](http://reactivex.io/documentation/operators/window.html)
-     
+
      - parameter timeSpan: Maximum time length of a window.
      - parameter count: Maximum element count of a window.
      - parameter scheduler: Scheduler to run windowing timers on.
@@ -400,17 +387,16 @@ extension ObservableType {
     @available(*, deprecated, message: "Use DispatchTimeInterval overload instead.", renamed: "window(_:)")
     public func window(timeSpan: Foundation.TimeInterval, count: Int, scheduler: SchedulerType)
         -> Observable<Observable<Element>> {
-            return window(timeSpan: .milliseconds(Int(timeSpan * 1000.0)), count: count, scheduler: scheduler)
+        return window(timeSpan: .milliseconds(Int(timeSpan * 1000.0)), count: count, scheduler: scheduler)
     }
 }
-
 
 extension PrimitiveSequence {
     /**
      Returns an observable sequence by the source observable sequence shifted forward in time by a specified delay. Error events from the source observable sequence are not delayed.
-     
+
      - seealso: [delay operator on reactivex.io](http://reactivex.io/documentation/operators/delay.html)
-     
+
      - parameter dueTime: Relative time shift of the source by.
      - parameter scheduler: Scheduler to run the subscription delay timer on.
      - returns: the source Observable shifted in time by the specified delay.
@@ -420,12 +406,12 @@ extension PrimitiveSequence {
         -> PrimitiveSequence<Trait, Element> {
         return delay(.milliseconds(Int(dueTime * 1000.0)), scheduler: scheduler)
     }
-            
+
     /**
      Time shifts the observable sequence by delaying the subscription with the specified relative time duration, using the specified scheduler to run timers.
-     
+
      - seealso: [delay operator on reactivex.io](http://reactivex.io/documentation/operators/delay.html)
-     
+
      - parameter dueTime: Relative time shift of the subscription.
      - parameter scheduler: Scheduler to run the subscription delay timer on.
      - returns: Time-shifted sequence.
@@ -435,12 +421,12 @@ extension PrimitiveSequence {
         -> PrimitiveSequence<Trait, Element> {
         return delaySubscription(.milliseconds(Int(dueTime * 1000.0)), scheduler: scheduler)
     }
-    
+
     /**
      Applies a timeout policy for each element in the observable sequence. If the next element isn't received within the specified timeout duration starting from its predecessor, a TimeoutError is propagated to the observer.
-     
+
      - seealso: [timeout operator on reactivex.io](http://reactivex.io/documentation/operators/timeout.html)
-     
+
      - parameter dueTime: Maximum duration between values before a timeout occurs.
      - parameter scheduler: Scheduler to run the timeout timer on.
      - returns: An observable sequence with a `RxError.timeout` in case of a timeout.
@@ -450,12 +436,12 @@ extension PrimitiveSequence {
         -> PrimitiveSequence<Trait, Element> {
         return timeout(.milliseconds(Int(dueTime * 1000.0)), scheduler: scheduler)
     }
-    
+
     /**
      Applies a timeout policy for each element in the observable sequence, using the specified scheduler to run timeout timers. If the next element isn't received within the specified timeout duration starting from its predecessor, the other observable sequence is used to produce future messages from that point on.
-     
+
      - seealso: [timeout operator on reactivex.io](http://reactivex.io/documentation/operators/timeout.html)
-     
+
      - parameter dueTime: Maximum duration between values before a timeout occurs.
      - parameter other: Sequence to return in case of a timeout.
      - parameter scheduler: Scheduler to run the timeout timer on.
@@ -470,12 +456,11 @@ extension PrimitiveSequence {
 }
 
 extension PrimitiveSequenceType where Trait == SingleTrait {
-
     /**
      Invokes an action for each event in the observable sequence, and propagates all observer messages through the result sequence.
-     
+
      - seealso: [do operator on reactivex.io](http://reactivex.io/documentation/operators/do.html)
-     
+
      - parameter onNext: Action to invoke for each element in the observable sequence.
      - parameter onError: Action to invoke upon errored termination of the observable sequence.
      - parameter onSubscribe: Action to invoke before subscribing to source observable sequence.
@@ -490,7 +475,7 @@ extension PrimitiveSequenceType where Trait == SingleTrait {
                      onSubscribed: (() -> Void)? = nil,
                      onDispose: (() -> Void)? = nil)
         -> Single<Element> {
-        return self.`do`(
+        return `do`(
             onSuccess: onNext,
             onError: onError,
             onSubscribe: onSubscribe,
@@ -503,11 +488,11 @@ extension PrimitiveSequenceType where Trait == SingleTrait {
 extension ObservableType {
     /**
      Projects each element of an observable sequence into a buffer that's sent out when either it's full or a given amount of time has elapsed, using the specified scheduler to run timers.
-     
+
      A useful real-world analogy of this overload is the behavior of a ferry leaving the dock when all seats are taken, or at the scheduled time of departure, whichever event occurs first.
-     
+
      - seealso: [buffer operator on reactivex.io](http://reactivex.io/documentation/operators/buffer.html)
-     
+
      - parameter timeSpan: Maximum time length of a buffer.
      - parameter count: Maximum element count of a buffer.
      - parameter scheduler: Scheduler to run buffering timers on.
@@ -520,20 +505,19 @@ extension ObservableType {
     }
 }
 
-extension PrimitiveSequenceType where Element: RxAbstractInteger
-{
+extension PrimitiveSequenceType where Element: RxAbstractInteger {
     /**
      Returns an observable sequence that periodically produces a value after the specified initial relative due time has elapsed, using the specified scheduler to run timers.
-     
+
      - seealso: [timer operator on reactivex.io](http://reactivex.io/documentation/operators/timer.html)
-     
+
      - parameter dueTime: Relative time at which to produce the first value.
      - parameter scheduler: Scheduler to run timers on.
      - returns: An observable sequence that produces a value after due time has elapsed and then each period.
      */
     @available(*, deprecated, message: "Use DispatchTimeInterval overload instead.", renamed: "timer(_:scheduler:)")
     public static func timer(_ dueTime: Foundation.TimeInterval, scheduler: SchedulerType)
-        -> PrimitiveSequence<Trait, Element>  {
+        -> PrimitiveSequence<Trait, Element> {
         return timer(.milliseconds(Int(dueTime * 1000.0)), scheduler: scheduler)
     }
 }
@@ -549,7 +533,7 @@ extension Completable {
      */
     @available(*, deprecated, message: "Use Completable.zip instead.", renamed: "zip")
     public static func merge<Collection: Swift.Collection>(_ sources: Collection) -> Completable
-           where Collection.Element == Completable {
+        where Collection.Element == Completable {
         return zip(sources)
     }
 

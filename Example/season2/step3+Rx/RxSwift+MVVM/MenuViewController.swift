@@ -20,7 +20,7 @@ class MenuViewController: UIViewController {
         fetchMenuItems()
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func prepare(for segue: UIStoryboardSegue, sender _: Any?) {
         let identifier = segue.identifier ?? ""
         if identifier == "OrderViewController",
             let orderVC = segue.destination as? OrderViewController {

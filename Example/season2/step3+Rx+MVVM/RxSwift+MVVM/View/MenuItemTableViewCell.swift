@@ -14,7 +14,7 @@ class MenuItemTableViewCell: UITableViewCell {
 
     private let onCountChanged: (Int) -> Void
     private let cellDisposeBag = DisposeBag()
-    
+
     var disposeBag = DisposeBag()
     let onData: AnyObserver<ViewMenu>
     let onChanged: Observable<Int>

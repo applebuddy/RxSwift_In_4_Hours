@@ -30,7 +30,7 @@ extension ObservableType {
      - returns: Disposable object that can be used to unsubscribe the observer.
      */
     public func bind(to relays: PublishRelay<Element?>...) -> Disposable {
-        return self.map { $0 as Element? }.bind(to: relays)
+        return map { $0 as Element? }.bind(to: relays)
     }
 
     /**
@@ -63,7 +63,7 @@ extension ObservableType {
      - returns: Disposable object that can be used to unsubscribe the observer.
      */
     public func bind(to relays: BehaviorRelay<Element>...) -> Disposable {
-        return self.bind(to: relays)
+        return bind(to: relays)
     }
 
     /**
@@ -76,7 +76,7 @@ extension ObservableType {
      - returns: Disposable object that can be used to unsubscribe the observer.
      */
     public func bind(to relays: BehaviorRelay<Element?>...) -> Disposable {
-        return self.map { $0 as Element? }.bind(to: relays)
+        return map { $0 as Element? }.bind(to: relays)
     }
 
     /**

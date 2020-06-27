@@ -12,10 +12,10 @@ import RxSwift
 
 #if os(Linux)
     import Foundation
-    #if compiler(>=5.0) 
-    let runLoopMode: RunLoop.Mode = .default
+    #if compiler(>=5.0)
+        let runLoopMode: RunLoop.Mode = .default
     #else
-    let runLoopMode: RunLoopMode = .defaultRunLoopMode
+        let runLoopMode: RunLoopMode = .defaultRunLoopMode
     #endif
 
     let runLoopModeRaw: CFString = unsafeBitCast(runLoopMode.rawValue._bridgeToObjectiveC(), to: CFString.self)
@@ -32,37 +32,36 @@ final class RunLoopLock {
     var _timeout: TimeInterval?
 
     init(timeout: TimeInterval?) {
-        self._timeout = timeout
-        self._currentRunLoop = CFRunLoopGetCurrent()
+        _timeout = timeout
+        _currentRunLoop = CFRunLoopGetCurrent()
     }
 
     func dispatch(_ action: @escaping () -> Void) {
-        CFRunLoopPerformBlock(self._currentRunLoop, runLoopModeRaw) {
+        CFRunLoopPerformBlock(_currentRunLoop, runLoopModeRaw) {
             if CurrentThreadScheduler.isScheduleRequired {
                 _ = CurrentThreadScheduler.instance.schedule(()) { _ in
                     action()
                     return Disposables.create()
                 }
-            }
-            else {
+            } else {
                 action()
             }
         }
-        CFRunLoopWakeUp(self._currentRunLoop)
+        CFRunLoopWakeUp(_currentRunLoop)
     }
 
     func stop() {
-        if decrement(self._calledStop) > 1 {
+        if decrement(_calledStop) > 1 {
             return
         }
-        CFRunLoopPerformBlock(self._currentRunLoop, runLoopModeRaw) {
+        CFRunLoopPerformBlock(_currentRunLoop, runLoopModeRaw) {
             CFRunLoopStop(self._currentRunLoop)
         }
-        CFRunLoopWakeUp(self._currentRunLoop)
+        CFRunLoopWakeUp(_currentRunLoop)
     }
 
     func run() throws {
-        if increment(self._calledRun) != 0 {
+        if increment(_calledRun) != 0 {
             fatalError("Run can be only called once")
         }
         if let timeout = self._timeout {
@@ -93,8 +92,7 @@ final class RunLoopLock {
                     return
                 }
             #endif
-        }
-        else {
+        } else {
             CFRunLoopRun()
         }
     }

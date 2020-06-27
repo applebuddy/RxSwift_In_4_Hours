@@ -6,7 +6,7 @@
 //  Copyright © 2015 Krunoslav Zaher. All rights reserved.
 //
 
-extension ObservableType where Element : RxAbstractInteger {
+extension ObservableType where Element: RxAbstractInteger {
     /**
      Returns an observable sequence that produces a value after each period, using the specified scheduler to run timers and to send out observer messages.
 
@@ -49,19 +49,19 @@ extension ObservableType where Element: RxAbstractInteger {
 
 import Foundation
 
-final private class TimerSink<Observer: ObserverType> : Sink<Observer> where Observer.Element : RxAbstractInteger  {
+private final class TimerSink<Observer: ObserverType>: Sink<Observer> where Observer.Element: RxAbstractInteger {
     typealias Parent = Timer<Observer.Element>
 
     private let _parent: Parent
     private let _lock = RecursiveLock()
 
     init(parent: Parent, observer: Observer, cancel: Cancelable) {
-        self._parent = parent
+        _parent = parent
         super.init(observer: observer, cancel: cancel)
     }
 
     func run() -> Disposable {
-        return self._parent._scheduler.schedulePeriodic(0 as Observer.Element, startAfter: self._parent._dueTime, period: self._parent._period!) { state in
+        return _parent._scheduler.schedulePeriodic(0 as Observer.Element, startAfter: _parent._dueTime, period: _parent._period!) { state in
             self._lock.lock(); defer { self._lock.unlock() }
             self.forwardOn(.next(state))
             return state &+ 1
@@ -69,18 +69,18 @@ final private class TimerSink<Observer: ObserverType> : Sink<Observer> where Obs
     }
 }
 
-final private class TimerOneOffSink<Observer: ObserverType>: Sink<Observer> where Observer.Element: RxAbstractInteger {
+private final class TimerOneOffSink<Observer: ObserverType>: Sink<Observer> where Observer.Element: RxAbstractInteger {
     typealias Parent = Timer<Observer.Element>
 
     private let _parent: Parent
 
     init(parent: Parent, observer: Observer, cancel: Cancelable) {
-        self._parent = parent
+        _parent = parent
         super.init(observer: observer, cancel: cancel)
     }
 
     func run() -> Disposable {
-        return self._parent._scheduler.scheduleRelative(self, dueTime: self._parent._dueTime) { [unowned self] _ -> Disposable in
+        return _parent._scheduler.scheduleRelative(self, dueTime: _parent._dueTime) { [unowned self] _ -> Disposable in
             self.forwardOn(.next(0))
             self.forwardOn(.completed)
             self.dispose()
@@ -90,24 +90,23 @@ final private class TimerOneOffSink<Observer: ObserverType>: Sink<Observer> wher
     }
 }
 
-final private class Timer<Element: RxAbstractInteger>: Producer<Element> {
+private final class Timer<Element: RxAbstractInteger>: Producer<Element> {
     fileprivate let _scheduler: SchedulerType
     fileprivate let _dueTime: RxTimeInterval
     fileprivate let _period: RxTimeInterval?
 
     init(dueTime: RxTimeInterval, period: RxTimeInterval?, scheduler: SchedulerType) {
-        self._scheduler = scheduler
-        self._dueTime = dueTime
-        self._period = period
+        _scheduler = scheduler
+        _dueTime = dueTime
+        _period = period
     }
 
     override func run<Observer: ObserverType>(_ observer: Observer, cancel: Cancelable) -> (sink: Disposable, subscription: Disposable) where Observer.Element == Element {
-        if self._period != nil {
+        if _period != nil {
             let sink = TimerSink(parent: self, observer: observer, cancel: cancel)
             let subscription = sink.run()
             return (sink: sink, subscription: subscription)
-        }
-        else {
+        } else {
             let sink = TimerOneOffSink(parent: self, observer: observer, cancel: cancel)
             let subscription = sink.run()
             return (sink: sink, subscription: subscription)

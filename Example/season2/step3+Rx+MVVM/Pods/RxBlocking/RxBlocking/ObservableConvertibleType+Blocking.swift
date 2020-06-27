@@ -6,8 +6,8 @@
 //  Copyright © 2015 Krunoslav Zaher. All rights reserved.
 //
 
-import RxSwift
 import Foundation
+import RxSwift
 
 extension ObservableConvertibleType {
     /// Converts an Observable into a `BlockingObservable` (an Observable with blocking operators).
@@ -15,6 +15,6 @@ extension ObservableConvertibleType {
     /// - parameter timeout: Maximal time interval BlockingObservable can block without throwing `RxError.timeout`.
     /// - returns: `BlockingObservable` version of `self`
     public func toBlocking(timeout: TimeInterval? = nil) -> BlockingObservable<Element> {
-        return BlockingObservable(timeout: timeout, source: self.asObservable())
+        return BlockingObservable(timeout: timeout, source: asObservable())
     }
 }

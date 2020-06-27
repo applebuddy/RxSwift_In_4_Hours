@@ -73,7 +73,7 @@ class ViewController: UITableViewController {
 // MARK: TableView DataSource
 
 extension ViewController {
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         return data.count
     }
 
@@ -86,7 +86,7 @@ extension ViewController {
         return cell
     }
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = data[indexPath.row]
         performSegue(withIdentifier: "DetailViewController", sender: item)
     }

@@ -6,22 +6,22 @@
 //  Copyright © 2015 Krunoslav Zaher. All rights reserved.
 //
 
-import RxSwift
 import class Foundation.NSError
+import RxSwift
 
 internal func equals<Element: Equatable>(lhs: Event<Element>, rhs: Event<Element>) -> Bool {
     switch (lhs, rhs) {
     case (.completed, .completed): return true
     case let (.error(e1), .error(e2)):
         #if os(Linux)
-        return  "\(e1)" == "\(e2)"
+            return "\(e1)" == "\(e2)"
         #else
-        let error1 = e1 as NSError
-        let error2 = e2 as NSError
-        
-        return error1.domain == error2.domain
-            && error1.code == error2.code
-            && "\(e1)" == "\(e2)"
+            let error1 = e1 as NSError
+            let error2 = e2 as NSError
+
+            return error1.domain == error2.domain
+                && error1.code == error2.code
+                && "\(e1)" == "\(e2)"
         #endif
     case let (.next(v1), .next(v2)): return v1 == v2
     default: return false
@@ -33,14 +33,14 @@ internal func equals<Element: Equatable>(lhs: Event<Element?>, rhs: Event<Elemen
     case (.completed, .completed): return true
     case let (.error(e1), .error(e2)):
         #if os(Linux)
-        return  "\(e1)" == "\(e2)"
+            return "\(e1)" == "\(e2)"
         #else
-        let error1 = e1 as NSError
-        let error2 = e2 as NSError
-        
-        return error1.domain == error2.domain
-            && error1.code == error2.code
-            && "\(e1)" == "\(e2)"
+            let error1 = e1 as NSError
+            let error2 = e2 as NSError
+
+            return error1.domain == error2.domain
+                && error1.code == error2.code
+                && "\(e1)" == "\(e2)"
         #endif
     case let (.next(v1), .next(v2)): return v1 == v2
     default: return false
@@ -51,14 +51,14 @@ internal func equals<Element: Equatable>(lhs: SingleEvent<Element>, rhs: SingleE
     switch (lhs, rhs) {
     case let (.error(e1), .error(e2)):
         #if os(Linux)
-        return  "\(e1)" == "\(e2)"
+            return "\(e1)" == "\(e2)"
         #else
-        let error1 = e1 as NSError
-        let error2 = e2 as NSError
-        
-        return error1.domain == error2.domain
-            && error1.code == error2.code
-            && "\(e1)" == "\(e2)"
+            let error1 = e1 as NSError
+            let error2 = e2 as NSError
+
+            return error1.domain == error2.domain
+                && error1.code == error2.code
+                && "\(e1)" == "\(e2)"
         #endif
     case let (.success(v1), .success(v2)): return v1 == v2
     default: return false
@@ -70,14 +70,14 @@ internal func equals<Element: Equatable>(lhs: MaybeEvent<Element>, rhs: MaybeEve
     case (.completed, .completed): return true
     case let (.error(e1), .error(e2)):
         #if os(Linux)
-        return  "\(e1)" == "\(e2)"
+            return "\(e1)" == "\(e2)"
         #else
-        let error1 = e1 as NSError
-        let error2 = e2 as NSError
-        
-        return error1.domain == error2.domain
-            && error1.code == error2.code
-            && "\(e1)" == "\(e2)"
+            let error1 = e1 as NSError
+            let error2 = e2 as NSError
+
+            return error1.domain == error2.domain
+                && error1.code == error2.code
+                && "\(e1)" == "\(e2)"
         #endif
     case let (.success(v1), .success(v2)): return v1 == v2
     default: return false
@@ -94,14 +94,14 @@ extension CompletableEvent: Equatable {
         case (.completed, .completed): return true
         case let (.error(e1), .error(e2)):
             #if os(Linux)
-            return  "\(e1)" == "\(e2)"
+                return "\(e1)" == "\(e2)"
             #else
-            let error1 = e1 as NSError
-            let error2 = e2 as NSError
+                let error1 = e1 as NSError
+                let error2 = e2 as NSError
 
-            return error1.domain == error2.domain
-                && error1.code == error2.code
-                && "\(e1)" == "\(e2)"
+                return error1.domain == error2.domain
+                    && error1.code == error2.code
+                    && "\(e1)" == "\(e2)"
             #endif
         default: return false
         }

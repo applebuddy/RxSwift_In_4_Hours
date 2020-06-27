@@ -6,9 +6,9 @@ public enum RxOptionalError: Error, CustomStringConvertible {
 
     public var description: String {
         switch self {
-        case .foundNilWhileUnwrappingOptional(let type):
-           return "Found nil while trying to unwrap type <\(String(describing: type))>"
-        case .emptyOccupiable(let type):
+        case let .foundNilWhileUnwrappingOptional(type):
+            return "Found nil while trying to unwrap type <\(String(describing: type))>"
+        case let .emptyOccupiable(type):
             return "Empty occupiable of type <\(String(describing: type))>"
         }
     }
