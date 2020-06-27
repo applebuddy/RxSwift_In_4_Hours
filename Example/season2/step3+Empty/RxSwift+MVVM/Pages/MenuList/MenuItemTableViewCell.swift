@@ -15,7 +15,15 @@ class MenuItemTableViewCell: UITableViewCell {
     @IBOutlet var count: UILabel!
     @IBOutlet var price: UILabel!
 
-    @IBAction func onIncreaseCount() {}
+    // MARK: Cell 내에서의 viewModel 사용
 
-    @IBAction func onDecreaseCount() {}
+    var onChange: ((Int) -> Void)?
+
+    @IBAction func onIncreaseCount() {
+        onChange?(+1)
+    }
+
+    @IBAction func onDecreaseCount() {
+        onChange?(-1)
+    }
 }
