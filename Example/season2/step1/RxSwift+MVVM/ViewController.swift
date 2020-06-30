@@ -95,13 +95,13 @@ class ViewController: UIViewController {
 
         /*
          /*
-            let ob1: Observable<String> =
-                Observable.just(MEMBER_LIST_URL) // String
-                    .map { URL(string: $0)! } // -> URL
-                    .map { try Data(contentsOf: $0) } // -> Data
-                    .map { JSON($0) } // JSON
-                    .map { $0["name"].stringValue }
-                    .map { $0 + "\n" }
+             let ob1: Observable<String> =
+                 Observable.just(MEMBER_LIST_URL) // String
+                     .map { URL(string: $0)! } // -> URL
+                     .map { try Data(contentsOf: $0) } // -> Data
+                     .map { JSON($0) } // JSON
+                     .map { $0["name"].stringValue }
+                     .map { $0 + "\n" }
           */
 
          // MARK: ob1 == ob2 + ob3

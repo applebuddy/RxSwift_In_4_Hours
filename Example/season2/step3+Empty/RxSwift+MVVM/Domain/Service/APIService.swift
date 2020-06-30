@@ -11,6 +11,7 @@
 // - menu를 가져오는 로직이 구현되어 있다.
 
 import Foundation
+import RxSwift
 
 let MenuUrl = "https://firebasestorage.googleapis.com/v0/b/rxswiftin4hours.appspot.com/o/fried_menus.json?alt=media&token=42d5cb7e-8ec4-48f9-bf39-3049e796c936"
 
@@ -30,5 +31,23 @@ class APIService {
             }
             onComplete(.success(data))
         }.resume()
+    }
+
+    // - Rx를 활용한 Refactoring Code 구현 ...ing
+    static func fetchAllMenusRx() -> Observable<Data> {
+        return Observable.create { emitter in
+
+            fetchAllMenus { result in
+                switch result {
+                case let .success(data):
+                    emitter.onNext(data)
+                case let .failure(error):
+                    emitter.onError(error)
+                }
+                emitter.onCompleted()
+            }
+
+            return Disposables.create()
+        }
     }
 }
