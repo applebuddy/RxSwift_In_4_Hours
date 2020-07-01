@@ -37,14 +37,25 @@ class MenuListViewModel {
     // MARK: Init
 
     init() {
-        let menuList: [Menu] = [
-            Menu(id: 0, name: "튀김", price: 600, count: 16),
-            Menu(id: 1, name: "오뎅", price: 500, count: 30),
-            Menu(id: 2, name: "떡볶이", price: 1200, count: 20),
-            Menu(id: 3, name: "순대", price: 700, count: 13),
-        ]
+        _ = APIService.fetchAllMenusRx()
+            .map { data -> [MenuItem] in
+                struct Response: Decodable {
+                    let menus: [MenuItem] // 서버에서 받는 데이터, MenuItem
+                }
 
-        menuObservable.onNext(menuList)
+                let response = try! JSONDecoder().decode(Response.self, from: data)
+                return response.menus
+            }
+            .map { menuItems -> [Menu] in
+                var menuList: [Menu] = []
+                menuItems.enumerated().forEach { index, item in
+                    let menu = Menu.fromMEnuItems(id: index, item: item)
+                    menuList.append(menu)
+                }
+                return menuList
+            }
+            .take(1)
+            .bind(to: menuObservable)
     }
 
     // - clearButton을 누를때마다 아래의 stream이 생긴다.

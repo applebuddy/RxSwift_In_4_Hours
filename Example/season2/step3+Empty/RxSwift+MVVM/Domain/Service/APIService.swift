@@ -36,17 +36,15 @@ class APIService {
     // - Rx를 활용한 Refactoring Code 구현 ...ing
     static func fetchAllMenusRx() -> Observable<Data> {
         return Observable.create { emitter in
-
-            fetchAllMenus { result in
+            fetchAllMenus() { result in
                 switch result {
                 case let .success(data):
                     emitter.onNext(data)
+                    emitter.onCompleted()
                 case let .failure(error):
                     emitter.onError(error)
                 }
-                emitter.onCompleted()
             }
-
             return Disposables.create()
         }
     }
